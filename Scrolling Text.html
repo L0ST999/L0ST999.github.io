@@ -1,0 +1,115 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TikTok-Style Media Feed</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; overflow:hidden; background:black; font-family: sans-serif; }
+    .feed { height:100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width:none; }
+    .feed::-webkit-scrollbar { display:none; }
+
+    .slide {
+      position:relative;
+      height:100vh;
+      width:100vw;
+      scroll-snap-align:start;
+    }
+
+    video, img {
+      height:100%;
+      width:100%;
+      object-fit:cover;
+    }
+
+    .overlay {
+      position:absolute;
+      bottom:60px;
+      left:16px;
+      color:white;
+      max-width:70%;
+    }
+
+    .username { font-weight:600; margin-bottom:6px; }
+    .caption { font-size:14px; opacity:0.9; }
+
+    .actions {
+      position:absolute;
+      right:12px;
+      bottom:80px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      color:white;
+      text-align:center;
+      font-size:12px;
+    }
+    .actions div { cursor:pointer; }
+    .actions span { display:block; font-size:22px; }
+  </style>
+</head>
+<body>
+  <div class="feed">
+    <!-- Image slide -->
+    <div class="slide">
+      <img src="https://cdn.discordapp.com/attachments/1357785060828512390/1450984156380004544/IMG_8543.jpg?ex=694485cc&is=6943344c&hm=a7b7b25e8888bfcc952eb20a332f5a9f37c95ea47b3d424e5556426f0ac09597&" />
+      <div class="overlay">
+        <div class="username">@imageuser</div>
+        <div class="caption">Beautiful photo of my Noelly</div>
+      </div>
+      <div class="actions">
+        <div><span>❤️</span>3.2k</div>
+        <div><span>💬</span>125</div>
+        <div><span>↗️</span>Share</div>
+      </div>
+    </div>
+
+    <!-- Video slide -->
+    <div class="slide">
+      <img src="https://cdn.discordapp.com/attachments/1357785060828512390/1450984157088976987/IMG_8555.jpg?ex=694485cd&is=6943344d&hm=53dfcbaaf7a3207c46e02d806c1b3e68957484c20a306e996e895184228afb10&"/>
+      <div class="overlay">
+        <div class="username">@Nyxen</div>
+        <div class="caption">Isn't Noelly the cutest?!?! Yes -_- you better agree</div>
+      </div>
+      <div class="actions">
+        <div><span>❤️</span>8.7k</div>
+        <div><span>💬</span>421</div>
+        <div><span>↗️</span>Share</div>
+      </div>
+    </div>
+
+    <!-- Another image -->
+    <div class="slide">
+      <img src="https://cdn.discordapp.com/attachments/1357785060828512390/1450984158447796224/IMG_8589.jpg?ex=694485cd&is=6943344d&hm=3a29e99dbae3ea42ac84cf839729f29fd6bca114b48b48c50d071bb52b1348b0&"/>
+      <div class="overlay">
+        <div class="username">@Nyxen</div>
+        <div class="caption">The love of my life 🥺</div>
+      </div>
+      <div class="actions">
+        <div><span>❤️</span>1.1k</div>
+        <div><span>💬</span>50</div>
+        <div><span>↗️</span>Share</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Only control videos
+    const videos = document.querySelectorAll('video');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const video = entry.target;
+        if(entry.isIntersecting){
+          video.play();
+        } else {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
+    }, { threshold: 0.75 });
+
+    videos.forEach(video => observer.observe(video));
+  </script>
+</body>
+</html>
