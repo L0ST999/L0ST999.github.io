@@ -88,6 +88,11 @@
 
 <body>
   <div class="feed">
+    <button id="enable-motion" 
+            style="position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);
+                   padding:16px 24px;font-size:18px;z-index:1000;">
+      Enable Shake Effects
+    </button>
     <!-- Image slide -->
     <div class="slide">
       <img src="https://cdn.discordapp.com/attachments/1357785060828512390/1450984156380004544/IMG_8543.jpg?ex=694485cc&is=6943344c&hm=a7b7b25e8888bfcc952eb20a332f5a9f37c95ea47b3d424e5556426f0ac09597&" />
@@ -183,18 +188,17 @@
       
       let lastShake = 0;
 
-      // Function to create a heart at random x
+      // Create falling hearts
       function createHeart(slide) {
         const heart = document.createElement('div');
         heart.className = 'love';
         heart.textContent = '❤️';
-        const x = Math.random() * window.innerWidth + 'px';
-        heart.style.setProperty('--x', x);
+        heart.style.setProperty('--x', Math.random() * window.innerWidth + 'px');
         slide.appendChild(heart);
         setTimeout(() => heart.remove(), 3000);
       }
       
-      // Function to rain hearts on visible slide
+      // Rain hearts on visible slide
       function rainHearts() {
         const slides = document.querySelectorAll('.slide');
         slides.forEach(slide => {
@@ -207,14 +211,17 @@
         });
       }
       
-      // Shake detection handler
+      // Shake detection
       function handleShake(event) {
         const acc = event.accelerationIncludingGravity;
-        if (!acc.x && !acc.y && !acc.z) return; // ignore null values
+        if (!acc) return;
       
-        const totalAcc = Math.sqrt((acc.x || 0) ** 2 + (acc.y || 0) ** 2 + (acc.z || 0) ** 2);
+        const x = acc.x || 0;
+        const y = acc.y || 0;
+        const z = acc.z || 0;
+        const totalAcc = Math.sqrt(x * x + y * y + z * z);
       
-        if (totalAcc > 15) { // lower threshold, tweak as needed
+        if (totalAcc > 15) { // adjust sensitivity
           const now = Date.now();
           if (now - lastShake > 1000) { // 1s cooldown
             lastShake = now;
@@ -223,21 +230,28 @@
         }
       }
       
-      // Request permission on iOS 13+ before listening
-      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-        DeviceMotionEvent.requestPermission()
-          .then(response => {
-            if (response === 'granted') {
-              window.addEventListener('devicemotion', handleShake);
-            } else {
-              alert('Motion permission denied. Shake detection won’t work.');
-            }
-          })
-          .catch(console.error);
-      } else {
-        // Non-iOS or older devices
-        window.addEventListener('devicemotion', handleShake);
-      }
+      // Enable motion on tap
+      document.getElementById('enable-motion').addEventListener('click', () => {
+        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+          // iOS 13+
+          DeviceMotionEvent.requestPermission()
+            .then(response => {
+              if (response === 'granted') {
+                window.addEventListener('devicemotion', handleShake);
+                alert('Shake detection enabled! 🎉');
+                document.getElementById('enable-motion').remove();
+              } else {
+                alert('Permission denied.');
+              }
+            })
+            .catch(console.error);
+        } else {
+          // Android / other
+          window.addEventListener('devicemotion', handleShake);
+          alert('Shake detection enabled! 🎉');
+          document.getElementById('enable-motion').remove();
+        }
+      });
 
   </script>
 </body>
