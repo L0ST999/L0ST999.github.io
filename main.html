@@ -69,8 +69,9 @@
     }
     
     .love {
-      position: absolute;
-      z-index: 999;           /* make sure hearts appear above the image */
+      position: fixed; /* fixed to viewport so it always starts at top */
+      top: 0;          /* start at the top of the screen */
+      z-index: 1000;   /* above everything */
       font-size: 24px;
       color: #ff4d6d;
       pointer-events: none;
@@ -190,26 +191,19 @@
       let lastShake = 0;
 
       // Create falling hearts
-      function createHeart(slide) {
+      function createHeart() {
         const heart = document.createElement('div');
         heart.className = 'love';
         heart.textContent = '❤️';
         heart.style.setProperty('--x', Math.random() * window.innerWidth + 'px');
-        slide.appendChild(heart);
+        document.body.appendChild(heart);
         setTimeout(() => heart.remove(), 3000);
       }
       
-      // Rain hearts on visible slide
       function rainHearts() {
-        const slides = document.querySelectorAll('.slide');
-        slides.forEach(slide => {
-          const rect = slide.getBoundingClientRect();
-          if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-            for (let i = 0; i < 15; i++) {
-              setTimeout(() => createHeart(slide), i * 100);
-            }
-          }
-        });
+        for (let i = 0; i < 15; i++) {
+          setTimeout(() => createHeart(), i * 100);
+        }
       }
       
       // Shake detection
