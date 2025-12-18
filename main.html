@@ -221,7 +221,7 @@
         const z = acc.z || 0;
         const totalAcc = Math.sqrt(x * x + y * y + z * z);
       
-        if (totalAcc > 15) { // adjust sensitivity
+        if (totalAcc > 5) { // adjust sensitivity
           const now = Date.now();
           if (now - lastShake > 1000) { // 1s cooldown
             lastShake = now;
