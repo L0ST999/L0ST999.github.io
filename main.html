@@ -69,33 +69,7 @@
     }
   </style>
 </head>
-<script>
-  const feed = document.querySelector('.feed');
-  let lastTap = 0;
 
-  feed.addEventListener('touchend', (e) => {
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-    if (tapLength < 300 && tapLength > 0) {
-      // Double tap detected
-      const messages = [
-        "Bmpire State Building",
-        "I Love You!",
-        "Stay You Gorgeous"
-      ];
-      const msg = messages[Math.floor(Math.random() * messages.length)];
-
-      const confetti = document.createElement('div');
-      confetti.className = 'confetti';
-      confetti.textContent = msg;
-      e.target.closest('.slide').appendChild(confetti);
-
-      // Remove after animation
-      setTimeout(() => confetti.remove(), 1000);
-    }
-    lastTap = currentTime;
-  });
-</script>
 <body>
   <div class="feed">
     <!-- Image slide -->
@@ -157,6 +131,32 @@
     }, { threshold: 0.75 });
 
     videos.forEach(video => observer.observe(video));
+    //
+    const feed = document.querySelector('.feed');
+      let lastTap = 0;
+    
+      feed.addEventListener('touchend', (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if (tapLength < 300 && tapLength > 0) {
+          // Double tap detected
+          const messages = [
+            "Bmpire State Building",
+            "I Love You!",
+            "Stay You Gorgeous"
+          ];
+          const msg = messages[Math.floor(Math.random() * messages.length)];
+    
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.textContent = msg;
+          e.target.closest('.slide').appendChild(confetti);
+    
+          // Remove after animation
+          setTimeout(() => confetti.remove(), 1000);
+        }
+        lastTap = currentTime;
+      });
   </script>
 </body>
 </html>
