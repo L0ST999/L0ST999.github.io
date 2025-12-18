@@ -47,8 +47,55 @@
     }
     .actions div { cursor:pointer; }
     .actions span { display:block; font-size:22px; }
+    
+    .confetti {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      color: #ff4081;
+      font-weight: bold;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      animation: pop 1s forwards;
+    }
+
+    @keyframes pop {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1) opacity: 0; }
+    }
   </style>
 </head>
+<script>
+  const feed = document.querySelector('.feed');
+  let lastTap = 0;
+
+  feed.addEventListener('touchend', (e) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    if (tapLength < 300 && tapLength > 0) {
+      // Double tap detected
+      const messages = [
+        "Bmpire State Building",
+        "I Love You!",
+        "Stay You Gorgeous"
+      ];
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.textContent = msg;
+      e.target.closest('.slide').appendChild(confetti);
+
+      // Remove after animation
+      setTimeout(() => confetti.remove(), 1000);
+    }
+    lastTap = currentTime;
+  });
+</script>
 <body>
   <div class="feed">
     <!-- Image slide -->
