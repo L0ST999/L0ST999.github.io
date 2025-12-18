@@ -69,22 +69,21 @@
     }
     
     .love {
-      position: fixed; /* fixed to viewport so it always starts at top */
-      top: 0;          /* start at the top of the screen */
-      z-index: 1000;   /* above everything */
-      font-size: 24px;
-      color: #ff4d6d;
-      pointer-events: none;
-      animation: fall 3s linear forwards;
-      transform-style: preserve-3d;
-      text-shadow: 0 1px 0 #fff, 0 2px 0 #f0f, 0 3px 0 #f99;
-    }
-  
-    @keyframes fall {
-      0% { transform: translate3d(var(--x), -50px, 0) rotateY(0deg) rotateX(0deg); opacity:1; }
-      100% { transform: translate3d(var(--x), 110vh, 200px) rotateY(360deg) rotateX(360deg); opacity:0; }
-    }
-
+        position: absolute; /* relative to slide */
+        top: 0;             /* start at top of slide */
+        z-index: 1000;      /* above images/overlays */
+        font-size: 24px;
+        color: #ff4d6d;
+        pointer-events: none;
+        animation: fall 3s linear forwards;
+        transform-style: preserve-3d;
+        text-shadow: 0 1px 0 #fff, 0 2px 0 #f0f, 0 3px 0 #f99;
+      }
+      
+      @keyframes fall {
+        0% { transform: translateX(var(--x)) translateY(0) rotateY(0deg) rotateX(0deg); opacity:1; }
+        100% { transform: translateX(var(--x)) translateY(100%) rotateY(360deg) rotateX(360deg); opacity:0; }
+      }
   </style>
 </head>
 
@@ -188,22 +187,34 @@
       
       /////////////
       
-      let lastShake = 0;
-
-      // Create falling hearts
-      function createHeart() {
+      let shaking = false;
+      let spawnInterval;
+      
+      function createHeart(slide) {
         const heart = document.createElement('div');
         heart.className = 'love';
         heart.textContent = '❤️';
-        heart.style.setProperty('--x', Math.random() * window.innerWidth + 'px');
-        document.body.appendChild(heart);
+        heart.style.setProperty('--x', Math.random() * slide.offsetWidth + 'px');
+        slide.appendChild(heart);
         setTimeout(() => heart.remove(), 3000);
       }
       
       function rainHearts() {
-        for (let i = 0; i < 15; i++) {
-          setTimeout(() => createHeart(), i * 100);
-        }
+        const slides = document.querySelectorAll('.slide');
+        slides.forEach(slide => {
+          const rect = slide.getBoundingClientRect();
+          if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+            // Current visible slide
+            if (!spawnInterval) {
+              spawnInterval = setInterval(() => createHeart(slide), 150);
+            }
+          }
+        });
+      }
+      
+      function stopHearts() {
+        clearInterval(spawnInterval);
+        spawnInterval = null;
       }
       
       // Shake detection
@@ -211,40 +222,36 @@
         const acc = event.accelerationIncludingGravity;
         if (!acc) return;
       
-        const x = acc.x || 0;
-        const y = acc.y || 0;
-        const z = acc.z || 0;
-        const totalAcc = Math.sqrt(x * x + y * y + z * z);
+        const x = acc.x || 0, y = acc.y || 0, z = acc.z || 0;
+        const total = Math.sqrt(x*x + y*y + z*z);
       
-        if (totalAcc > 5) { // adjust sensitivity
-          const now = Date.now();
-          if (now - lastShake > 1000) { // 1s cooldown
-            lastShake = now;
+        if (total > 15) {
+          if (!shaking) {
+            shaking = true;
             rainHearts();
+          }
+        } else {
+          if (shaking) {
+            shaking = false;
+            stopHearts();
           }
         }
       }
       
-      // Enable motion on tap
-      document.getElementById('enable-motion').addEventListener('click', () => {
+      // Enable motion button
+      const enableBtn = document.getElementById('enable-motion');
+      enableBtn.addEventListener('click', () => {
         if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-          // iOS 13+
           DeviceMotionEvent.requestPermission()
-            .then(response => {
-              if (response === 'granted') {
+            .then(resp => {
+              if (resp === 'granted') {
                 window.addEventListener('devicemotion', handleShake);
-                alert('Shake detection enabled! 🎉');
-                document.getElementById('enable-motion').remove();
-              } else {
-                alert('Permission denied.');
-              }
-            })
-            .catch(console.error);
+                enableBtn.remove();
+              } else alert('Permission denied');
+            }).catch(console.error);
         } else {
-          // Android / other
           window.addEventListener('devicemotion', handleShake);
-          alert('Shake detection enabled! 🎉');
-          document.getElementById('enable-motion').remove();
+          enableBtn.remove();
         }
       });
 
