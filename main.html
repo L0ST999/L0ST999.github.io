@@ -193,31 +193,51 @@
         slide.appendChild(heart);
         setTimeout(() => heart.remove(), 3000);
       }
-    
-      // Shake detection
-      window.addEventListener('devicemotion', (event) => {
+      
+      // Function to rain hearts on visible slide
+      function rainHearts() {
+        const slides = document.querySelectorAll('.slide');
+        slides.forEach(slide => {
+          const rect = slide.getBoundingClientRect();
+          if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+            for (let i = 0; i < 15; i++) {
+              setTimeout(() => createHeart(slide), i * 100);
+            }
+          }
+        });
+      }
+      
+      // Shake detection handler
+      function handleShake(event) {
         const acc = event.accelerationIncludingGravity;
-        const totalAcc = Math.sqrt(acc.x*acc.x + acc.y*acc.y + acc.z*acc.z);
-    
-        if (totalAcc > 25) { // shake threshold, adjust if needed
+        if (!acc.x && !acc.y && !acc.z) return; // ignore null values
+      
+        const totalAcc = Math.sqrt((acc.x || 0) ** 2 + (acc.y || 0) ** 2 + (acc.z || 0) ** 2);
+      
+        if (totalAcc > 15) { // lower threshold, tweak as needed
           const now = Date.now();
           if (now - lastShake > 1000) { // 1s cooldown
             lastShake = now;
-    
-            // Rain hearts on current visible slide
-            const slides = document.querySelectorAll('.slide');
-            slides.forEach(slide => {
-              const rect = slide.getBoundingClientRect();
-              if (rect.top < window.innerHeight/2 && rect.bottom > window.innerHeight/2) {
-                // visible slide
-                for (let i=0; i<15; i++) { // number of hearts
-                  setTimeout(() => createHeart(slide), i*100);
-                }
-              }
-            });
+            rainHearts();
           }
         }
-      });
+      }
+      
+      // Request permission on iOS 13+ before listening
+      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+          .then(response => {
+            if (response === 'granted') {
+              window.addEventListener('devicemotion', handleShake);
+            } else {
+              alert('Motion permission denied. Shake detection won’t work.');
+            }
+          })
+          .catch(console.error);
+      } else {
+        // Non-iOS or older devices
+        window.addEventListener('devicemotion', handleShake);
+      }
 
   </script>
 </body>
