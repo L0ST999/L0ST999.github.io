@@ -67,6 +67,22 @@
       50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
       100% { transform: translate(-50%, -50%) scale(1) opacity: 0; }
     }
+    
+    .love {
+      position: absolute;
+      font-size: 24px;
+      color: #ff4d6d;
+      pointer-events: none;
+      animation: fall 3s linear forwards;
+      transform-style: preserve-3d;
+      text-shadow: 0 1px 0 #fff, 0 2px 0 #f0f, 0 3px 0 #f99;
+    }
+  
+    @keyframes fall {
+      0% { transform: translate3d(var(--x), -50px, 0) rotateY(0deg) rotateX(0deg); opacity:1; }
+      100% { transform: translate3d(var(--x), 110vh, 200px) rotateY(360deg) rotateX(360deg); opacity:0; }
+    }
+
   </style>
 </head>
 
@@ -162,6 +178,47 @@
         }
         lastTap = currentTime;
       });
+      
+      /////////////
+      
+      let lastShake = 0;
+
+      // Function to create a heart at random x
+      function createHeart(slide) {
+        const heart = document.createElement('div');
+        heart.className = 'love';
+        heart.textContent = '❤️';
+        const x = Math.random() * window.innerWidth + 'px';
+        heart.style.setProperty('--x', x);
+        slide.appendChild(heart);
+        setTimeout(() => heart.remove(), 3000);
+      }
+    
+      // Shake detection
+      window.addEventListener('devicemotion', (event) => {
+        const acc = event.accelerationIncludingGravity;
+        const totalAcc = Math.sqrt(acc.x*acc.x + acc.y*acc.y + acc.z*acc.z);
+    
+        if (totalAcc > 25) { // shake threshold, adjust if needed
+          const now = Date.now();
+          if (now - lastShake > 1000) { // 1s cooldown
+            lastShake = now;
+    
+            // Rain hearts on current visible slide
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach(slide => {
+              const rect = slide.getBoundingClientRect();
+              if (rect.top < window.innerHeight/2 && rect.bottom > window.innerHeight/2) {
+                // visible slide
+                for (let i=0; i<15; i++) { // number of hearts
+                  setTimeout(() => createHeart(slide), i*100);
+                }
+              }
+            });
+          }
+        }
+      });
+
   </script>
 </body>
 </html>
